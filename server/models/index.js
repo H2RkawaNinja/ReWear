@@ -9,6 +9,7 @@ const Kategorie = require('./Kategorie');
 const Artikel = require('./Artikel');
 const RematchOutfit = require('./RematchOutfit');
 const RematchArtikel = require('./RematchArtikel');
+const AktivitaetsLog = require('./AktivitaetsLog');
 
 // ==========================================
 // RELATIONEN / ASSOCIATIONS
@@ -102,5 +103,6 @@ module.exports = {
   Kategorie,
   Artikel,
   RematchOutfit,
-  RematchArtikel
+  RematchArtikel,
+  AktivitaetsLog
 };

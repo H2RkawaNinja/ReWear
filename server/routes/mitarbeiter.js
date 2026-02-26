@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const { Mitarbeiter, Rolle, Recht } = require('../models');
 const { authenticate, requirePermission } = require('../middleware/auth');
 const { upload, handleUploadError } = require('../middleware/upload');
+const { logAktion } = require('../utils/logger');
 
 const router = express.Router();
 
@@ -129,6 +130,7 @@ router.post('/',
       });
 
       // Setup-Link im Response zurückgeben
+      logAktion(`Mitarbeiter angelegt: ${mitarbeiter.vorname} ${mitarbeiter.nachname}`, 'Mitarbeiter', req.mitarbeiter, { mitarbeiter_id: mitarbeiter.id });
       res.status(201).json({
         ...mitRolle.toJSON(),
         setup_token: setupToken // Nur bei Erstellung zurückgeben
@@ -260,7 +262,7 @@ router.delete('/:id',
       }
       
       await mitarbeiter.destroy();
-      
+      logAktion(`Mitarbeiter gelöscht: ${mitarbeiter.vorname} ${mitarbeiter.nachname}`, 'Mitarbeiter', req.mitarbeiter, { mitarbeiter_id: mitarbeiter.id });
       res.json({ message: 'Mitarbeiter erfolgreich gelöscht.' });
       
     } catch (error) {

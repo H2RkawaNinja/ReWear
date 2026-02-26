@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { Mitarbeiter, Rolle, Recht } = require('../models');
+const { logAktion } = require('../utils/logger');
 
 const router = express.Router();
 
@@ -47,6 +48,9 @@ router.post('/login', async (req, res) => {
     
     // Letzten Login aktualisieren
     await mitarbeiter.update({ letzter_login: new Date() });
+
+    // Login loggen
+    logAktion(`Login: ${mitarbeiter.benutzername}`, 'Auth', mitarbeiter, { rolle: mitarbeiter.rolle?.name });
     
     // Token erstellen
     const token = jwt.sign(

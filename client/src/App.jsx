@@ -22,6 +22,7 @@ import Mitarbeiter from './pages/admin/Mitarbeiter';
 import Rollen from './pages/admin/Rollen';
 import Verkauf from './pages/admin/Verkauf';
 import MeineStats from './pages/admin/MeineStats';
+import Aktivitaetslog from './pages/admin/Aktivitaetslog';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -59,6 +60,7 @@ function App() {
             <Route path="rollen" element={<Rollen />} />
             <Route path="verkauf" element={<Verkauf />} />
             <Route path="meine-stats" element={<MeineStats />} />
+            <Route path="log" element={<Aktivitaetslog />} />
           </Route>
         </Routes>
       </BrowserRouter>

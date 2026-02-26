@@ -12,7 +12,8 @@ import {
   X,
   BookOpen,
   ShoppingBag,
-  TrendingUp
+  TrendingUp,
+  ScrollText
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -86,6 +87,12 @@ const AdminLayout = () => {
       icon: Shield, 
       label: 'Rollen',
       permission: 'rollen.verwalten'
+    },
+    { 
+      to: '/admin/log', 
+      icon: ScrollText, 
+      label: 'Aktivitätslog',
+      permission: 'log.ansehen'
     },
   ];
 

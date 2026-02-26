@@ -26,8 +26,11 @@ const RECHTE = [
   { schluessel: 'rollen.verwalten', name: 'Rollen verwalten', beschreibung: 'Kann Rollen und Berechtigungen verwalten', kategorie: 'Rollen' },
   
   // Statistiken
-  { schluessel: 'dashboard.stats', name: 'Dashboard-Statistiken sehen', beschreibung: 'Kann die Statistik-Kacheln auf dem Dashboard sehen (Artikel, Lagerwert, Verkäufe, Team)', kategorie: 'Statistiken' },
-  { schluessel: 'statistiken.ansehen', name: 'Statistiken ansehen', beschreibung: 'Kann die Statistiken-Seite mit Diagrammen und detaillierten Auswertungen öffnen', kategorie: 'Statistiken' }
+  { schluessel: 'dashboard.stats', name: 'Dashboard-Statistiken sehen', beschreibung: 'Kann die Statistik-Kacheln auf dem Dashboard sehen', kategorie: 'Statistiken' },
+  { schluessel: 'statistiken.ansehen', name: 'Statistiken ansehen', beschreibung: 'Kann die Statistiken-Seite mit Diagrammen und detaillierten Auswertungen öffnen', kategorie: 'Statistiken' },
+
+  // System
+  { schluessel: 'log.ansehen', name: 'Aktivitätslog ansehen', beschreibung: 'Kann alle Aktivitäten im System einsehen und filtern', kategorie: 'System' }
 ];
 
 // Standard-Kategorien

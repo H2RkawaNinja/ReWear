@@ -3,6 +3,7 @@ const { Op } = require('sequelize');
 const { Artikel, Kategorie, Mitarbeiter } = require('../models');
 const { authenticate, requirePermission } = require('../middleware/auth');
 const { upload, handleUploadError } = require('../middleware/upload');
+const { logAktion } = require('../utils/logger');
 
 const router = express.Router();
 
@@ -213,6 +214,7 @@ router.post('/',
       const artikelMitRelationen = await Artikel.findByPk(artikel.id, {
         include: [{ model: Kategorie, as: 'kategorie' }]
       });
+      logAktion(`Artikel angekauft: ${artikel.name}`, 'Ankauf', req.mitarbeiter, { artikel_id: artikel.id });
       res.status(201).json(artikelMitRelationen);
     } catch (error) {
       console.error('Artikel erstellen Fehler:', error);
@@ -279,7 +281,7 @@ router.delete('/:id',
       }
       
       await artikel.destroy();
-      
+      logAktion(`Artikel gelöscht: ${artikel.name}`, 'Artikel', req.mitarbeiter, { artikel_id: req.params.id });
       res.json({ message: 'Artikel erfolgreich gelöscht.' });
       
     } catch (error) {
@@ -375,6 +377,7 @@ router.patch('/:id/verkaufen',
         ]
       });
 
+      logAktion(`Artikel verkauft: ${artikel.name}`, 'Verkauf', req.mitarbeiter, { artikel_id: artikel.id });
       res.json(aktualisiert);
     } catch (error) {
       console.error('Verkaufen Fehler:', error);

@@ -17,6 +17,7 @@ const rollenRoutes = require('./routes/rollen');
 const rechteRoutes = require('./routes/rechte');
 const rematchRoutes = require('./routes/rematch');
 const statsRoutes = require('./routes/stats');
+const logRoutes = require('./routes/log');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -43,6 +44,7 @@ app.use('/api/rollen', rollenRoutes);
 app.use('/api/rechte', rechteRoutes);
 app.use('/api/rematch', rematchRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/log', logRoutes);
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -78,6 +80,7 @@ const startServer = async () => {
     // Rechte sicherstellen (neue Rechte anlegen falls noch nicht vorhanden)
     const { Recht } = require('./models');
     await Recht.upsert({ schluessel: 'dashboard.stats', name: 'Dashboard-Statistiken sehen', beschreibung: 'Kann die Statistik-Kacheln auf dem Dashboard sehen (Artikel, Lagerwert, Verkäufe, Team)', kategorie: 'Statistiken' });
+    await Recht.upsert({ schluessel: 'log.ansehen', name: 'Aktivitätslog ansehen', beschreibung: 'Kann alle Aktivitäten im System einsehen und filtern', kategorie: 'System' });
     await Recht.update(
       { beschreibung: 'Kann die Statistiken-Seite mit Diagrammen und detaillierten Auswertungen öffnen' },
       { where: { schluessel: 'statistiken.ansehen' } }
