@@ -1,0 +1,320 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================
+   RE:WEAR Westside - Street Style CSS
+   =================================== */
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  @apply bg-street-950 text-white font-body;
+  min-height: 100vh;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-street-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-street-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary;
+}
+
+/* Selection */
+::selection {
+  @apply bg-primary text-white;
+}
+
+/* ===================================
+   Street Style Components
+   =================================== */
+
+/* Graffiti Text Effect */
+.text-graffiti {
+  @apply font-graffiti;
+  text-shadow: 
+    3px 3px 0px #ff6b35,
+    -1px -1px 0px #ff3131;
+}
+
+/* Neon Glow Effect */
+.neon-glow {
+  text-shadow: 
+    0 0 10px #ff3131,
+    0 0 20px #ff3131,
+    0 0 30px #ff3131;
+}
+
+/* Street Card */
+.street-card {
+  @apply bg-street-900 border border-street-700 rounded-lg overflow-hidden;
+  @apply transition-all duration-300;
+  @apply hover:border-primary hover:shadow-neon;
+}
+
+/* Torn Edge Effect (CSS Only) */
+.torn-edge {
+  position: relative;
+}
+
+.torn-edge::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(135deg, transparent 75%, #1a1a1a 75%),
+              linear-gradient(45deg, #1a1a1a 25%, transparent 25%);
+  background-size: 20px 20px;
+}
+
+/* Street Button */
+.btn-street {
+  @apply px-6 py-3 bg-primary text-white font-street text-lg tracking-wider;
+  @apply border-2 border-primary rounded;
+  @apply transition-all duration-300;
+  @apply hover:bg-transparent hover:text-primary hover:shadow-neon;
+  @apply active:scale-95;
+}
+
+.btn-street-outline {
+  @apply px-6 py-3 bg-transparent text-primary font-street text-lg tracking-wider;
+  @apply border-2 border-primary rounded;
+  @apply transition-all duration-300;
+  @apply hover:bg-primary hover:text-white hover:shadow-neon;
+  @apply active:scale-95;
+}
+
+/* Input Field */
+@layer components {
+  .input-street {
+    @apply w-full px-4 py-3 bg-street-800 border border-street-600 rounded;
+    @apply text-white placeholder-street-400;
+    @apply focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary;
+    @apply transition-all duration-300;
+  }
+}
+
+/* Badge */
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-available {
+  @apply bg-neon-green/20 text-neon-green border border-neon-green/30;
+}
+
+.badge-reserved {
+  @apply bg-neon-orange/20 text-neon-orange border border-neon-orange/30;
+}
+
+.badge-sold {
+  @apply bg-neon-red/20 text-neon-red border border-neon-red/30;
+}
+
+/* ===================================
+   Layout Components
+   =================================== */
+
+/* Container */
+.container-street {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Section */
+.section-street {
+  @apply py-12 md:py-20;
+}
+
+/* Grid */
+.grid-street {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+}
+
+/* ===================================
+   Admin Dashboard Styles
+   =================================== */
+
+/* Sidebar */
+.sidebar {
+  @apply w-64 bg-street-900 border-r border-street-700 min-h-screen;
+}
+
+.sidebar-link {
+  @apply flex items-center gap-3 px-4 py-3 text-street-300;
+  @apply transition-all duration-200;
+  @apply hover:bg-street-800 hover:text-white hover:pl-6;
+}
+
+.sidebar-link.active {
+  @apply bg-primary/10 text-primary border-r-2 border-primary;
+}
+
+/* Data Table */
+.data-table {
+  @apply w-full text-left;
+}
+
+.data-table th {
+  @apply px-4 py-3 bg-street-800 text-street-300 font-semibold text-sm uppercase tracking-wider;
+}
+
+.data-table td {
+  @apply px-4 py-4 border-b border-street-800;
+}
+
+.data-table tr:hover td {
+  @apply bg-street-800/50;
+}
+
+/* Stats Card */
+.stats-card {
+  @apply p-6 bg-street-900 border border-street-700 rounded-lg;
+}
+
+.stats-card .value {
+  @apply text-3xl font-street text-white;
+}
+
+.stats-card .label {
+  @apply text-sm text-street-400 mt-1;
+}
+
+/* ===================================
+   Animations
+   =================================== */
+
+/* Fade In Up */
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger Children */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.7s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.8s; }
+
+/* Hover Lift */
+.hover-lift {
+  @apply transition-transform duration-300;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+}
+
+/* ===================================
+   Kategorie Cards
+   =================================== */
+
+/* Kategorie Card Hover Effects */
+.kategorie-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kategorie-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.8s ease-in-out;
+  z-index: 2;
+}
+
+.kategorie-card:hover::before {
+  left: 100%;
+}
+
+/* Kategorie Image Effects */
+.kategorie-img {
+  transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kategorie-card:hover .kategorie-img {
+  transform: scale(1.15) rotate(2deg);
+  filter: brightness(1.1) contrast(1.1);
+}
+
+/* Kategorie Info Animations */
+.kategorie-info {
+  transform: translateY(8px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kategorie-card:hover .kategorie-info {
+  transform: translateY(0);
+}
+
+/* Kategorie Title Effects */
+.kategorie-title {
+  position: relative;
+  display: inline-block;
+}
+
+.kategorie-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transition: width 0.4s ease-out;
+}
+
+.kategorie-card:hover .kategorie-title::after {
+  width: 100%;
+}
+
+/* Kategorie Fallback Styles */
+.kategorie-fallback {
+  background: linear-gradient(135deg, 
+    rgba(var(--color-primary-rgb), 0.3) 0%, 
+    rgba(var(--color-secondary-rgb), 0.3) 100%
+  );
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
