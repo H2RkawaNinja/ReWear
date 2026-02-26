@@ -86,8 +86,14 @@ router.get('/',
       const gesamterAnkaufswertAller = await Artikel.sum('ankaufspreis', {
         where: nurArtikel
       }) || 0;
-      const korrekturEintrag = await Einstellung.findOne({ where: { schluessel: 'firmenkonto_korrektur' } });
-      const korrektur = korrekturEintrag ? parseFloat(korrekturEintrag.wert) || 0 : 0;
+      let korrektur = 0;
+      let korrekturEintrag = null;
+      try {
+        korrekturEintrag = await Einstellung.findOne({ where: { schluessel: 'firmenkonto_korrektur' } });
+        korrektur = korrekturEintrag ? parseFloat(korrekturEintrag.wert) || 0 : 0;
+      } catch (e) {
+        // Tabelle existiert noch nicht – wird beim nächsten Server-Neustart angelegt
+      }
       const firmenkontoSoll = umsatzGesamt - gesamterAnkaufswertAller + korrektur;
       
       // Mitarbeiter-Statistiken
@@ -164,11 +170,17 @@ router.patch('/firmenkonto-korrektur',
       const wert = parseFloat(korrektur);
       if (isNaN(wert)) return res.status(400).json({ error: 'Ungültiger Wert.' });
 
-      const [eintrag] = await Einstellung.upsert({
-        schluessel: 'firmenkonto_korrektur',
-        wert: wert.toFixed(2),
-        beschreibung: beschreibung || 'Manuelle Korrektur des Soll-Kontostands'
-      }, { conflictFields: ['schluessel'] });
+      const desc = beschreibung || 'Manuelle Korrektur des Soll-Kontostands';
+      let eintrag = await Einstellung.findOne({ where: { schluessel: 'firmenkonto_korrektur' } });
+      if (eintrag) {
+        await eintrag.update({ wert: wert.toFixed(2), beschreibung: desc });
+      } else {
+        eintrag = await Einstellung.create({
+          schluessel: 'firmenkonto_korrektur',
+          wert: wert.toFixed(2),
+          beschreibung: desc
+        });
+      }
 
       res.json({ korrektur: parseFloat(eintrag.wert).toFixed(2) });
     } catch (error) {
