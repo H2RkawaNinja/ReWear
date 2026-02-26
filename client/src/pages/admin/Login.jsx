@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -58,11 +58,13 @@ const Login = () => {
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img
-            src="/images/logo-main.png"
-            alt="RE:WEAR"
-            className="h-80 mx-auto mb-4 drop-shadow-[0_0_20px_rgba(255,107,53,0.4)]"
-          />
+          <Link to="/">
+            <img
+              src="/images/logo-main.png"
+              alt="RE:WEAR"
+              className="h-80 mx-auto mb-4 drop-shadow-[0_0_20px_rgba(255,107,53,0.4)] hover:drop-shadow-[0_0_30px_rgba(255,107,53,0.6)] transition-all cursor-pointer"
+            />
+          </Link>
           <p className="text-primary font-semibold tracking-widest text-sm">TEAM LOGIN</p>
         </div>
 

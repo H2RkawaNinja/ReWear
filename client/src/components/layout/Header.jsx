@@ -1,11 +1,10 @@
-import { Link, useLocation } from 'react-router-dom';
+﻿import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -20,8 +19,8 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
               <div>
-                <span className="font-graffiti text-2xl text-white leading-none">RE:WEAR</span>
-                <span className="block text-[10px] text-white/90 tracking-[0.3em] uppercase font-mono">WESTSIDE</span>
+                <span className="font-graffiti text-2xl text-white leading-none transition-colors">RE:WEAR</span>
+                <span className="block text-[10px] text-white/80 tracking-[0.3em] uppercase font-mono transition-colors">WESTSIDE</span>
               </div>
             </Link>
 
@@ -30,8 +29,8 @@ const Header = () => {
               <Link
                 to="/"
                 className={`px-4 py-2 text-sm font-medium tracking-wide transition-all ${
-                  isActive('/') 
-                    ? 'text-white' 
+                  isActive('/')
+                    ? 'text-white'
                     : 'text-white/70 hover:text-white'
                 }`}
               >
@@ -41,8 +40,8 @@ const Header = () => {
               <Link
                 to="/artikel"
                 className={`px-4 py-2 text-sm font-medium tracking-wide transition-all ${
-                  isActive('/artikel') 
-                    ? 'text-white' 
+                  isActive('/artikel')
+                    ? 'text-white'
                     : 'text-white/70 hover:text-white'
                 }`}
               >
@@ -52,8 +51,8 @@ const Header = () => {
               <Link
                 to="/rematch"
                 className={`px-4 py-2 text-sm font-medium tracking-wide transition-all ${
-                  isActive('/rematch') 
-                    ? 'text-white' 
+                  isActive('/rematch')
+                    ? 'text-white'
                     : 'text-white/70 hover:text-white'
                 }`}
               >
@@ -66,15 +65,18 @@ const Header = () => {
               >
                 [ TEAM ]
               </Link>
+
             </nav>
 
-            {/* Mobile Button */}
-            <button
-              className="md:hidden text-white/70 hover:text-white transition-colors p-1"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              {menuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            {/* Mobile Buttons */}
+            <div className="md:hidden flex items-center gap-2">
+              <button
+                className="text-white/70 hover:text-white transition-colors p-1"
+                onClick={() => setMenuOpen(!menuOpen)}
+              >
+                {menuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -95,4 +97,3 @@ const Header = () => {
 };
 
 export default Header;
-
