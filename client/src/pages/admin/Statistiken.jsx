@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  BarChart3, TrendingUp, Package, Euro, Users, Banknote, ShoppingBag, RefreshCw, Landmark, Check
+  BarChart3, TrendingUp, Package, Euro, Users, Banknote, ShoppingBag, RefreshCw, Landmark, Check, Pencil, X
 } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -65,6 +65,7 @@ const Statistiken = () => {
   const [korrekturWert, setKorrekturWert] = useState('0');
   const [korrekturGrund, setKorrekturGrund] = useState('');
   const [korrekturSaving, setKorrekturSaving] = useState(false);
+  const [editKorrektur, setEditKorrektur] = useState(false);
 
   const loadChartData = useCallback(async (zr) => {
     setChartLoading(true);
@@ -186,7 +187,21 @@ const Statistiken = () => {
               ? 'bg-neon-green/10 border-neon-green/40'
               : 'bg-red-900/20 border-red-500/40'
           }`}>
-            <p className="text-street-300 text-sm mb-1 font-semibold">Soll-Kontostand</p>
+            <p className="text-street-300 text-sm mb-1 font-semibold flex items-center justify-center gap-2">
+              Soll-Kontostand
+              <button
+                type="button"
+                onClick={() => setEditKorrektur(v => !v)}
+                title="Korrektur bearbeiten"
+                className={`p-1 rounded transition-colors ${
+                  editKorrektur
+                    ? 'bg-street-600 text-white'
+                    : 'text-street-500 hover:text-white hover:bg-street-700'
+                }`}
+              >
+                {editKorrektur ? <X size={13} /> : <Pencil size={13} />}
+              </button>
+            </p>
             <p className={`text-3xl font-street ${
               parseFloat(stats?.firmenkonto?.soll || 0) >= 0 ? 'text-neon-green' : 'text-red-400'
             }`}>
@@ -197,6 +212,7 @@ const Statistiken = () => {
         </div>
 
         {/* Manuelle Korrektur */}
+        {editKorrektur && (
         <form
           onSubmit={async (e) => {
             e.preventDefault();
@@ -207,6 +223,7 @@ const Statistiken = () => {
               setStats(res.data);
               setKorrekturWert(parseFloat(res.data?.firmenkonto?.korrektur || 0).toFixed(2));
               if (res.data?.firmenkonto?.grund) setKorrekturGrund(res.data.firmenkonto.grund);
+              setEditKorrektur(false);
             } catch (err) {
               alert(err.response?.data?.error || 'Fehler beim Speichern');
             } finally {
@@ -228,6 +245,7 @@ const Statistiken = () => {
                   onChange={e => setKorrekturWert(e.target.value)}
                   className="input-street pl-7 w-full"
                   placeholder="0.00"
+                  autoFocus
                 />
               </div>
               <p className="text-street-600 text-xs mt-1">Positiv = Zuschlag · Negativ = Abzug</p>
@@ -259,18 +277,26 @@ const Statistiken = () => {
                 {fmt(parseFloat(stats?.firmenkonto?.einnahmen||0) - parseFloat(stats?.firmenkonto?.ausgaben||0) + (parseFloat(korrekturWert)||0))}
               </div>
             </div>
-            <div>
+            <div className="flex flex-col gap-2">
               <button
                 type="submit"
                 disabled={korrekturSaving}
                 className="w-full py-3 rounded bg-primary text-black font-semibold text-sm hover:bg-primary/80 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Check size={16} />
-                {korrekturSaving ? 'Wird gespeichert...' : 'Korrektur speichern'}
+                {korrekturSaving ? 'Wird gespeichert...' : 'Speichern'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditKorrektur(false)}
+                className="w-full py-2 rounded bg-street-700 text-street-300 hover:text-white text-sm transition-colors"
+              >
+                Abbrechen
               </button>
             </div>
           </div>
         </form>
+        )}
       </div>
 
       {/* Umsatz-Übersicht Zahlen */}
