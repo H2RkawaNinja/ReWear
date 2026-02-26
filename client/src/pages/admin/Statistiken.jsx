@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  BarChart3, TrendingUp, Package, Euro, Users, Banknote, ShoppingBag, RefreshCw, Landmark
+  BarChart3, TrendingUp, Package, Euro, Users, Banknote, ShoppingBag, RefreshCw, Landmark, Pencil, Check, X
 } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -62,6 +62,9 @@ const Statistiken = () => {
   const [zeitraum, setZeitraum] = useState('30d');
   const [loading, setLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(false);
+  const [editKorrektur, setEditKorrektur] = useState(false);
+  const [korrekturWert, setKorrekturWert] = useState('0');
+  const [korrekturSaving, setKorrekturSaving] = useState(false);
 
   const loadChartData = useCallback(async (zr) => {
     setChartLoading(true);
@@ -89,6 +92,9 @@ const Statistiken = () => {
         setStats(statsRes.data);
         setKategorieStats(kategorienRes.data);
         setMitarbeiterStats(mitarbeiterRes.data);
+        // Korrektur-Wert aus geladenen Stats übernehmen
+        const k = statsRes.data?.firmenkonto?.korrektur;
+        if (k !== undefined) setKorrekturWert(parseFloat(k).toFixed(2));
       } catch(e) { console.error(e); }
       finally { setLoading(false); }
     };
@@ -99,6 +105,22 @@ const Statistiken = () => {
   const handleZeitraum = (zr) => {
     setZeitraum(zr);
     loadChartData(zr);
+  };
+
+  const handleKorrekturSave = async () => {
+    setKorrekturSaving(true);
+    try {
+      await api.patch('/stats/firmenkonto-korrektur', { korrektur: parseFloat(korrekturWert) || 0 });
+      // Stats neu laden damit Soll-Wert aktualisiert wird
+      const res = await api.get('/stats');
+      setStats(res.data);
+      setKorrekturWert(parseFloat(res.data?.firmenkonto?.korrektur || 0).toFixed(2));
+      setEditKorrektur(false);
+    } catch (e) {
+      alert(e.response?.data?.error || 'Fehler beim Speichern');
+    } finally {
+      setKorrekturSaving(false);
+    }
   };
 
   const pieData = kategorieStats
@@ -186,6 +208,61 @@ const Statistiken = () => {
             </p>
             <p className="text-street-500 text-xs mt-1">sollte auf dem Konto sein</p>
           </div>
+        </div>
+
+        {/* Manuelle Korrektur */}
+        <div className="mt-4 pt-4 border-t border-street-700">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-street-400 text-sm">Manuelle Korrektur</span>
+            {!editKorrektur ? (
+              <button
+                onClick={() => setEditKorrektur(true)}
+                className="flex items-center gap-1.5 text-xs text-street-400 hover:text-white transition-colors px-2 py-1 rounded hover:bg-street-700"
+              >
+                <Pencil size={13} /> Bearbeiten
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={handleKorrekturSave}
+                  disabled={korrekturSaving}
+                  className="flex items-center gap-1 text-xs bg-neon-green/20 text-neon-green hover:bg-neon-green/30 px-2 py-1 rounded transition-colors"
+                >
+                  <Check size={13} /> {korrekturSaving ? 'Speichern...' : 'Speichern'}
+                </button>
+                <button
+                  onClick={() => { setEditKorrektur(false); setKorrekturWert(parseFloat(stats?.firmenkonto?.korrektur || 0).toFixed(2)); }}
+                  className="flex items-center gap-1 text-xs bg-street-700 text-street-300 hover:text-white px-2 py-1 rounded transition-colors"
+                >
+                  <X size={13} /> Abbrechen
+                </button>
+              </div>
+            )}
+          </div>
+          {!editKorrektur ? (
+            <div className="flex items-center gap-2">
+              <span className={`font-semibold ${
+                parseFloat(stats?.firmenkonto?.korrektur || 0) > 0 ? 'text-neon-green' :
+                parseFloat(stats?.firmenkonto?.korrektur || 0) < 0 ? 'text-red-400' : 'text-street-500'
+              }`}>
+                {parseFloat(stats?.firmenkonto?.korrektur || 0) > 0 ? '+' : ''}{fmt(stats?.firmenkonto?.korrektur)}
+              </span>
+              <span className="text-street-600 text-xs">wird zum Soll addiert</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 max-w-xs">
+              <span className="text-street-400 font-semibold">$</span>
+              <input
+                type="number"
+                step="0.01"
+                value={korrekturWert}
+                onChange={e => setKorrekturWert(e.target.value)}
+                className="input-street text-sm py-1.5 flex-1"
+                autoFocus
+              />
+              <span className="text-street-500 text-xs whitespace-nowrap">neg. Wert = Abzug</span>
+            </div>
+          )}
         </div>
       </div>
 

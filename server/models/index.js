@@ -10,6 +10,7 @@ const Artikel = require('./Artikel');
 const RematchOutfit = require('./RematchOutfit');
 const RematchArtikel = require('./RematchArtikel');
 const AktivitaetsLog = require('./AktivitaetsLog');
+const Einstellung = require('./Einstellung');
 
 // ==========================================
 // RELATIONEN / ASSOCIATIONS
@@ -104,5 +105,6 @@ module.exports = {
   Artikel,
   RematchOutfit,
   RematchArtikel,
-  AktivitaetsLog
+  AktivitaetsLog,
+  Einstellung
 };

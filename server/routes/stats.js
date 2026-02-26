@@ -1,6 +1,6 @@
 const express = require('express');
 const { Op, fn, col, literal } = require('sequelize');
-const { Artikel, Kategorie, Mitarbeiter, RematchOutfit } = require('../models');
+const { Artikel, Kategorie, Mitarbeiter, RematchOutfit, Einstellung } = require('../models');
 const { authenticate, requirePermission } = require('../middleware/auth');
 
 const router = express.Router();
@@ -86,7 +86,9 @@ router.get('/',
       const gesamterAnkaufswertAller = await Artikel.sum('ankaufspreis', {
         where: nurArtikel
       }) || 0;
-      const firmenkontoSoll = umsatzGesamt - gesamterAnkaufswertAller;
+      const korrekturEintrag = await Einstellung.findOne({ where: { schluessel: 'firmenkonto_korrektur' } });
+      const korrektur = korrekturEintrag ? parseFloat(korrekturEintrag.wert) || 0 : 0;
+      const firmenkontoSoll = umsatzGesamt - gesamterAnkaufswertAller + korrektur;
       
       // Mitarbeiter-Statistiken
       const mitarbeiterGesamt = await Mitarbeiter.count();
@@ -139,12 +141,37 @@ router.get('/',
         firmenkonto: {
           einnahmen: parseFloat(umsatzGesamt).toFixed(2),
           ausgaben: parseFloat(gesamterAnkaufswertAller).toFixed(2),
+          korrektur: parseFloat(korrektur).toFixed(2),
           soll: parseFloat(firmenkontoSoll).toFixed(2)
         }
       });
       
     } catch (error) {
       console.error('Statistiken Fehler:', error);
+      res.status(500).json({ error: 'Serverfehler.' });
+    }
+  }
+);
+
+// Firmenkonto-Korrektur lesen/setzen
+router.patch('/firmenkonto-korrektur',
+  authenticate,
+  requirePermission('statistiken.ansehen'),
+  async (req, res) => {
+    try {
+      const { korrektur, beschreibung } = req.body;
+      const wert = parseFloat(korrektur);
+      if (isNaN(wert)) return res.status(400).json({ error: 'Ungültiger Wert.' });
+
+      const [eintrag] = await Einstellung.upsert({
+        schluessel: 'firmenkonto_korrektur',
+        wert: wert.toFixed(2),
+        beschreibung: beschreibung || 'Manuelle Korrektur des Soll-Kontostands'
+      }, { conflictFields: ['schluessel'] });
+
+      res.json({ korrektur: parseFloat(eintrag.wert).toFixed(2) });
+    } catch (error) {
+      console.error('Firmenkonto-Korrektur Fehler:', error);
       res.status(500).json({ error: 'Serverfehler.' });
     }
   }
