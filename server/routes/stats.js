@@ -142,6 +142,7 @@ router.get('/',
           einnahmen: parseFloat(umsatzGesamt).toFixed(2),
           ausgaben: parseFloat(gesamterAnkaufswertAller).toFixed(2),
           korrektur: parseFloat(korrektur).toFixed(2),
+          grund: korrekturEintrag?.beschreibung || '',
           soll: parseFloat(firmenkontoSoll).toFixed(2)
         }
       });

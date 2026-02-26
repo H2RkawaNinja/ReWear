@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Edit, Trash2, Eye, Globe, EyeOff } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, Globe, EyeOff, ChevronDown } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -195,19 +195,30 @@ const ArtikelVerwalten = () => {
                     <td className="font-semibold text-white">${parseFloat(a.verkaufspreis).toFixed(0)}</td>
                     <td>
                       {hasPermission('artikel.bearbeiten') ? (
-                        <select
-                          value={a.status}
-                          onChange={(e) => handleStatusChange(a.id, e.target.value)}
-                          className={`border text-sm cursor-pointer rounded px-2 py-1 font-semibold
-                            ${a.status === 'verfuegbar' ? 'bg-neon-green/20 text-neon-green border-neon-green/30' : ''}
-                            ${a.status === 'reserviert' ? 'bg-neon-orange/20 text-neon-orange border-neon-orange/30' : ''}
-                            ${a.status === 'verkauft'   ? 'bg-neon-red/20 text-neon-red border-neon-red/30' : ''}
-                          `}
-                        >
-                          <option value="verfuegbar" className="bg-street-900 text-white">Verfügbar</option>
-                          <option value="reserviert" className="bg-street-900 text-white">Reserviert</option>
-                          <option value="verkauft"   className="bg-street-900 text-white">Verkauft</option>
-                        </select>
+                        <div className="relative inline-flex items-center">
+                          <select
+                            value={a.status}
+                            onChange={(e) => handleStatusChange(a.id, e.target.value)}
+                            style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none' }}
+                            className={`pr-6 pl-3 py-1 rounded-full text-xs font-semibold border cursor-pointer outline-none transition-colors
+                              ${ a.status === 'verfuegbar' ? 'bg-neon-green/20 text-neon-green border-neon-green/40 hover:bg-neon-green/30' : ''}
+                              ${ a.status === 'reserviert' ? 'bg-orange-400/20 text-orange-400 border-orange-400/40 hover:bg-orange-400/30' : ''}
+                              ${ a.status === 'verkauft'   ? 'bg-red-500/20 text-red-400 border-red-500/40 hover:bg-red-500/30' : ''}
+                            `}
+                          >
+                            <option value="verfuegbar" style={{background:'#1a1a1a', color:'#fff'}}>Verfügbar</option>
+                            <option value="reserviert" style={{background:'#1a1a1a', color:'#fff'}}>Reserviert</option>
+                            <option value="verkauft"   style={{background:'#1a1a1a', color:'#fff'}}>Verkauft</option>
+                          </select>
+                          <ChevronDown
+                            size={11}
+                            className={`absolute right-1.5 pointer-events-none
+                              ${ a.status === 'verfuegbar' ? 'text-neon-green' : ''}
+                              ${ a.status === 'reserviert' ? 'text-orange-400' : ''}
+                              ${ a.status === 'verkauft'   ? 'text-red-400' : ''}
+                            `}
+                          />
+                        </div>
                       ) : (
                         <span className={`badge ${statusBadge[a.status]}`}>
                           {a.status === 'verfuegbar' ? 'Verfügbar' : 
