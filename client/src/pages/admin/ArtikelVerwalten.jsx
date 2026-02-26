@@ -193,11 +193,15 @@ const ArtikelVerwalten = () => {
                         <select
                           value={a.status}
                           onChange={(e) => handleStatusChange(a.id, e.target.value)}
-                          className="bg-transparent border-0 text-sm cursor-pointer"
+                          className={`border text-sm cursor-pointer rounded px-2 py-1 font-semibold
+                            ${a.status === 'verfuegbar' ? 'bg-neon-green/20 text-neon-green border-neon-green/30' : ''}
+                            ${a.status === 'reserviert' ? 'bg-neon-orange/20 text-neon-orange border-neon-orange/30' : ''}
+                            ${a.status === 'verkauft'   ? 'bg-neon-red/20 text-neon-red border-neon-red/30' : ''}
+                          `}
                         >
-                          <option value="verfuegbar">Verfügbar</option>
-                          <option value="reserviert">Reserviert</option>
-                          <option value="verkauft">Verkauft</option>
+                          <option value="verfuegbar" className="bg-street-900 text-white">Verfügbar</option>
+                          <option value="reserviert" className="bg-street-900 text-white">Reserviert</option>
+                          <option value="verkauft"   className="bg-street-900 text-white">Verkauft</option>
                         </select>
                       ) : (
                         <span className={`badge ${statusBadge[a.status]}`}>
