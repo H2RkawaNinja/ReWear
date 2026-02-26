@@ -74,6 +74,14 @@ const startServer = async () => {
       await sequelize.sync({ alter: true });
       console.log('✅ Datenbank synchronisiert!');
     }
+
+    // Rechte sicherstellen (neue Rechte anlegen falls noch nicht vorhanden)
+    const { Recht } = require('./models');
+    await Recht.upsert({ schluessel: 'dashboard.stats', name: 'Dashboard-Statistiken sehen', beschreibung: 'Kann die Statistik-Kacheln auf dem Dashboard sehen (Artikel, Lagerwert, Verkäufe, Team)', kategorie: 'Statistiken' });
+    await Recht.update(
+      { beschreibung: 'Kann die Statistiken-Seite mit Diagrammen und detaillierten Auswertungen öffnen' },
+      { where: { schluessel: 'statistiken.ansehen' } }
+    );
     
     app.listen(PORT, () => {
       console.log(`🚀 ReWear Server läuft auf Port ${PORT}`);

@@ -8,7 +8,7 @@ const router = express.Router();
 // Übersichts-Statistiken
 router.get('/',
   authenticate,
-  requirePermission('statistiken.ansehen'),
+  requirePermission('dashboard.stats', 'statistiken.ansehen'),
   async (req, res) => {
     try {
       // Artikel-Statistiken (Vorlagen ausschließen)

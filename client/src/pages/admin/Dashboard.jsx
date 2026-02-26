@@ -32,6 +32,11 @@ const Dashboard = () => {
     const controller = new AbortController();
 
     const loadStats = async () => {
+      // Nur laden wenn Berechtigung vorhanden
+      if (!hasPermission('dashboard.stats') && !hasPermission('statistiken.ansehen')) {
+        setLoading(false);
+        return;
+      }
       try {
         const res = await api.get('/stats', { signal: controller.signal });
         setStats(res.data);
@@ -45,7 +50,7 @@ const Dashboard = () => {
 
     loadStats();
     return () => controller.abort();
-  }, [authLoading, isAuthenticated, mitarbeiter]);
+  }, [authLoading, isAuthenticated, mitarbeiter, hasPermission]);
 
   const StatCard = ({ icon: Icon, label, value, color, subtext }) => (
     <div className="stats-card">
@@ -105,7 +110,7 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      {hasPermission('statistiken.ansehen') && (
+      {hasPermission('dashboard.stats') && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {loading ? (
             [...Array(4)].map((_, i) => (
