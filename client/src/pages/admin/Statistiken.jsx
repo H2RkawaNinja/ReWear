@@ -233,9 +233,9 @@ const Statistiken = () => {
           className="mt-4 pt-4 border-t border-street-700"
         >
           <p className="text-street-300 text-sm font-medium mb-3">Manuelle Korrektur des Soll-Kontostands</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
-            <div>
-              <label className="block text-street-400 text-xs mb-1.5">Korrekturbetrag ($)</label>
+          <div className="flex flex-col sm:flex-row gap-3 items-end">
+            <div className="flex-1 min-w-0">
+              <label className="block text-street-400 text-xs mb-1.5">Korrekturbetrag ($) <span className="text-street-600 font-normal">· Positiv = Zuschlag, Negativ = Abzug</span></label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-street-400 font-semibold text-sm">$</span>
                 <input
@@ -248,9 +248,8 @@ const Statistiken = () => {
                   autoFocus
                 />
               </div>
-              <p className="text-street-600 text-xs mt-1">Positiv = Zuschlag · Negativ = Abzug</p>
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <label className="block text-street-400 text-xs mb-1.5">Grund</label>
               <select
                 value={korrekturGrund}
@@ -267,7 +266,7 @@ const Statistiken = () => {
                 <option value="Sonstige Korrektur">Sonstige Korrektur</option>
               </select>
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <label className="block text-street-400 text-xs mb-1.5">Vorschau Soll-Kontostand</label>
               <div className={`px-4 py-3 rounded border text-lg font-street ${
                 (parseFloat(stats?.firmenkonto?.einnahmen||0) - parseFloat(stats?.firmenkonto?.ausgaben||0) + (parseFloat(korrekturWert)||0)) >= 0
@@ -277,7 +276,7 @@ const Statistiken = () => {
                 {fmt(parseFloat(stats?.firmenkonto?.einnahmen||0) - parseFloat(stats?.firmenkonto?.ausgaben||0) + (parseFloat(korrekturWert)||0))}
               </div>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex gap-2 sm:flex-col sm:w-36 w-full">
               <button
                 type="submit"
                 disabled={korrekturSaving}
