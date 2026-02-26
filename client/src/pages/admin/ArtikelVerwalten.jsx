@@ -12,7 +12,7 @@ const ArtikelVerwalten = () => {
   const [filter, setFilter] = useState({
     suche: '',
     kategorie: '',
-    status: ''
+    status: 'verfuegbar'
   });
   const { hasPermission } = useAuth();
 
@@ -61,10 +61,15 @@ const ArtikelVerwalten = () => {
     }
   };
 
-  const handleStatusChange = async (id, status) => {
+  const handleStatusChange = async (id, neuerStatus) => {
     try {
-      await api.patch(`/artikel/${id}/status`, { status });
-      loadArtikel(pagination.seite);
+      await api.patch(`/artikel/${id}/status`, { status: neuerStatus });
+      // Artikel sofort entfernen wenn neuer Status nicht zum Filter passt
+      if (filter.status && filter.status !== neuerStatus) {
+        setArtikel(prev => prev.filter(a => a.id !== id));
+      } else {
+        loadArtikel(pagination.seite);
+      }
     } catch (error) {
       alert(error.response?.data?.error || 'Fehler beim Ändern');
     }
@@ -135,7 +140,7 @@ const ArtikelVerwalten = () => {
             <option value="verkauft">Verkauft</option>
           </select>
           <button
-            onClick={() => setFilter({ suche: '', kategorie: '', status: '' })}
+            onClick={() => setFilter({ suche: '', kategorie: '', status: 'verfuegbar' })}
             className="btn-street-outline"
           >
             Zurücksetzen
