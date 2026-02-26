@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  BarChart3, TrendingUp, Package, Euro, Users, Banknote, ShoppingBag, RefreshCw
+  BarChart3, TrendingUp, Package, Euro, Users, Banknote, ShoppingBag, RefreshCw, Landmark
 } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -149,6 +149,44 @@ const Statistiken = () => {
         <StatCard icon={Banknote} label="Gesamtgewinn (real.)"
           value={`$${parseFloat(stats?.gesamt?.gewinn||0).toLocaleString('de-DE')}`}
           subtext={`Marge: ${stats?.gesamt?.marge||0}%`} color="#9b5de5" />
+      </div>
+
+      {/* Firmenkonto-Soll */}
+      <div className="street-card p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <Landmark size={20} className="text-neon-green" />
+          <h2 className="font-street text-xl text-white">Firmenkonto-Soll</h2>
+          <span className="ml-2 text-xs text-street-500 font-normal">Einnahmen aus Verkäufen − alle Ankaufskosten</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-street-800 rounded-lg p-4 text-center">
+            <p className="text-street-400 text-sm mb-1">Einnahmen (Verkäufe)</p>
+            <p className="text-2xl font-street text-neon-green">
+              {fmt(stats?.firmenkonto?.einnahmen)}
+            </p>
+            <p className="text-street-500 text-xs mt-1">{stats?.artikel.verkauft || 0} Artikel verkauft</p>
+          </div>
+          <div className="bg-street-800 rounded-lg p-4 text-center">
+            <p className="text-street-400 text-sm mb-1">Ausgaben (Ankäufe)</p>
+            <p className="text-2xl font-street text-red-400">
+              − {fmt(stats?.firmenkonto?.ausgaben)}
+            </p>
+            <p className="text-street-500 text-xs mt-1">{stats?.artikel.gesamt || 0} Artikel insgesamt</p>
+          </div>
+          <div className={`rounded-lg p-4 text-center border-2 ${
+            parseFloat(stats?.firmenkonto?.soll || 0) >= 0
+              ? 'bg-neon-green/10 border-neon-green/40'
+              : 'bg-red-900/20 border-red-500/40'
+          }`}>
+            <p className="text-street-300 text-sm mb-1 font-semibold">Soll-Kontostand</p>
+            <p className={`text-3xl font-street ${
+              parseFloat(stats?.firmenkonto?.soll || 0) >= 0 ? 'text-neon-green' : 'text-red-400'
+            }`}>
+              {fmt(stats?.firmenkonto?.soll)}
+            </p>
+            <p className="text-street-500 text-xs mt-1">sollte auf dem Konto sein</p>
+          </div>
+        </div>
       </div>
 
       {/* Umsatz-Übersicht Zahlen */}

@@ -81,6 +81,12 @@ router.get('/',
 
       const gesamtGewinn = umsatzGesamt - ankaufsWertVerkauft;
       const marge = umsatzGesamt > 0 ? ((gesamtGewinn / umsatzGesamt) * 100).toFixed(1) : '0.0';
+
+      // Firmenkonto-Soll: alle Einnahmen (Verkäufe) minus alle Ausgaben (Ankäufe aller Artikel)
+      const gesamterAnkaufswertAller = await Artikel.sum('ankaufspreis', {
+        where: nurArtikel
+      }) || 0;
+      const firmenkontoSoll = umsatzGesamt - gesamterAnkaufswertAller;
       
       // Mitarbeiter-Statistiken
       const mitarbeiterGesamt = await Mitarbeiter.count();
@@ -129,6 +135,11 @@ router.get('/',
           gesamt: rematchGesamt,
           archiviert: rematchArchiviert,
           aktiv: rematchGesamt - rematchArchiviert
+        },
+        firmenkonto: {
+          einnahmen: parseFloat(umsatzGesamt).toFixed(2),
+          ausgaben: parseFloat(gesamterAnkaufswertAller).toFixed(2),
+          soll: parseFloat(firmenkontoSoll).toFixed(2)
         }
       });
       

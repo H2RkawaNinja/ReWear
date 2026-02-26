@@ -331,9 +331,10 @@ router.patch('/:id/status',
       
       const updateData = { status };
       
-      // Verkaufsdatum setzen wenn verkauft
+      // Verkaufsdatum setzen wenn verkauft + aus Shop nehmen
       if (status === 'verkauft' && artikel.status !== 'verkauft') {
         updateData.verkauft_am = new Date();
+        updateData.freigegeben = false;
       } else if (status !== 'verkauft') {
         updateData.verkauft_am = null;
       }
@@ -363,6 +364,7 @@ router.patch('/:id/verkaufen',
 
       await artikel.update({
         status: 'verkauft',
+        freigegeben: false,
         verkauft_von: req.mitarbeiter.id,
         verkauft_am: new Date(),
         ...(req.body.verkaufspreis !== undefined && req.body.verkaufspreis !== ''
@@ -398,6 +400,7 @@ router.patch('/:id/verkauf-rueckgaengig',
 
       await artikel.update({
         status: 'verfuegbar',
+        freigegeben: true,
         verkauft_von: null,
         verkauft_am: null
       });
