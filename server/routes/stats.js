@@ -1,6 +1,7 @@
 const express = require('express');
 const { Op, fn, col, literal } = require('sequelize');
-const { Artikel, Kategorie, Mitarbeiter, RematchOutfit, Einstellung } = require('../models');
+const { Artikel, Kategorie, Mitarbeiter, RematchOutfit } = require('../models');
+const sequelize = require('../config/db');
 const { authenticate, requirePermission } = require('../middleware/auth');
 
 const router = express.Router();
@@ -89,8 +90,12 @@ router.get('/',
       let korrektur = 0;
       let korrekturEintrag = null;
       try {
-        korrekturEintrag = await Einstellung.findOne({ where: { schluessel: 'firmenkonto_korrektur' } });
-        korrektur = korrekturEintrag ? parseFloat(korrekturEintrag.wert) || 0 : 0;
+        await sequelize.query(`CREATE TABLE IF NOT EXISTS einstellungen (id INT AUTO_INCREMENT PRIMARY KEY, schluessel VARCHAR(100) UNIQUE NOT NULL, wert TEXT, beschreibung VARCHAR(255), erstellt_am DATETIME DEFAULT CURRENT_TIMESTAMP, aktualisiert_am DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)`);
+        const [einstellRows] = await sequelize.query(`SELECT wert, beschreibung FROM einstellungen WHERE schluessel = 'firmenkonto_korrektur' LIMIT 1`);
+        if (einstellRows.length > 0) {
+          korrekturEintrag = einstellRows[0];
+          korrektur = parseFloat(korrekturEintrag.wert) || 0;
+        }
       } catch (e) {
         // Tabelle existiert noch nicht – wird beim nächsten Server-Neustart angelegt
       }
@@ -170,22 +175,14 @@ router.patch('/firmenkonto-korrektur',
       const wert = parseFloat(korrektur);
       if (isNaN(wert)) return res.status(400).json({ error: 'Ungültiger Wert.' });
 
-      // Tabelle anlegen falls noch nicht vorhanden
-      await Einstellung.sync({ force: false });
-
       const desc = beschreibung || 'Manuelle Korrektur des Soll-Kontostands';
-      let eintrag = await Einstellung.findOne({ where: { schluessel: 'firmenkonto_korrektur' } });
-      if (eintrag) {
-        await eintrag.update({ wert: wert.toFixed(2), beschreibung: desc });
-      } else {
-        eintrag = await Einstellung.create({
-          schluessel: 'firmenkonto_korrektur',
-          wert: wert.toFixed(2),
-          beschreibung: desc
-        });
-      }
-
-      res.json({ korrektur: parseFloat(eintrag.wert).toFixed(2) });
+      const wertStr = wert.toFixed(2);
+      await sequelize.query(`CREATE TABLE IF NOT EXISTS einstellungen (id INT AUTO_INCREMENT PRIMARY KEY, schluessel VARCHAR(100) UNIQUE NOT NULL, wert TEXT, beschreibung VARCHAR(255), erstellt_am DATETIME DEFAULT CURRENT_TIMESTAMP, aktualisiert_am DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)`);
+      await sequelize.query(
+        `INSERT INTO einstellungen (schluessel, wert, beschreibung) VALUES ('firmenkonto_korrektur', :wert, :desc) ON DUPLICATE KEY UPDATE wert = :wert, beschreibung = :desc, aktualisiert_am = CURRENT_TIMESTAMP`,
+        { replacements: { wert: wertStr, desc } }
+      );
+      res.json({ korrektur: parseFloat(wertStr).toFixed(2) });
     } catch (error) {
       console.error('Firmenkonto-Korrektur Fehler:', error);
       res.status(500).json({ error: 'Serverfehler.' });
@@ -299,7 +296,7 @@ router.get('/mitarbeiter',
           {
             model: Artikel,
             as: 'angekaufte_artikel',
-            attributes: ['id', 'verkaufspreis', 'verkauft_am', 'status'],
+            attributes: ['id', 'ankaufspreis', 'verkaufspreis', 'verkauft_am', 'status'],
             where: { ist_vorlage: false },
             required: false
           },
@@ -323,6 +320,9 @@ router.get('/mitarbeiter',
           !resetDatum || new Date(a.verkauft_am) > resetDatum
         );
         const umsatzVerkauf = relevanteVerkaeufe.reduce((s, a) => s + parseFloat(a.verkaufspreis), 0);
+        const gewinnVerkauf = relevanteVerkaeufe.reduce((s, a) =>
+          s + Math.max(0, parseFloat(a.verkaufspreis) - parseFloat(a.ankaufspreis || 0)), 0
+        );
 
         // Ankauf-Bonus: Artikel die dieser MA angekauft hat und die verkauft wurden (nach reset)
         const ankaufBonusArtikel = (m.angekaufte_artikel || []).filter(a =>
@@ -330,9 +330,11 @@ router.get('/mitarbeiter',
           a.verkauft_am &&
           (!resetDatum || new Date(a.verkauft_am) > resetDatum)
         );
-        const umsatzAnkauf = ankaufBonusArtikel.reduce((s, a) => s + parseFloat(a.verkaufspreis), 0);
+        const gewinnAnkauf = ankaufBonusArtikel.reduce((s, a) =>
+          s + Math.max(0, parseFloat(a.verkaufspreis || 0) - parseFloat(a.ankaufspreis || 0)), 0
+        );
 
-        const bonus = (umsatzVerkauf + umsatzAnkauf) * bonus_p;
+        const bonus = (gewinnVerkauf + gewinnAnkauf) * bonus_p;
 
         return {
           id: m.id,
@@ -345,8 +347,8 @@ router.get('/mitarbeiter',
           verkaeufe: relevanteVerkaeufe.length,
           umsatz: umsatzVerkauf.toFixed(2),
           bonus: bonus.toFixed(2),
-          bonus_aus_verkauf: (umsatzVerkauf * bonus_p).toFixed(2),
-          bonus_aus_ankauf: (umsatzAnkauf * bonus_p).toFixed(2)
+          bonus_aus_verkauf: (gewinnVerkauf * bonus_p).toFixed(2),
+          bonus_aus_ankauf: (gewinnAnkauf * bonus_p).toFixed(2)
         };
       }).sort((a, b) => b.verkaeufe - a.verkaeufe);
 
@@ -393,7 +395,10 @@ router.get('/meine',
         !resetDatum || new Date(a.verkauft_am) > resetDatum
       );
       const umsatzVerkauf = relevanteVerkaeufe.reduce((s, a) => s + parseFloat(a.verkaufspreis), 0);
-      const bonusAusVerkauf = umsatzVerkauf * bonus_p;
+      const gewinnVerkauf = relevanteVerkaeufe.reduce((s, a) =>
+        s + Math.max(0, parseFloat(a.verkaufspreis) - parseFloat(a.ankaufspreis || 0)), 0
+      );
+      const bonusAusVerkauf = gewinnVerkauf * bonus_p;
 
       // Ankauf-Bonus: Angekaufte Artikel die verkauft wurden (nach reset)
       const ankaufBonusArtikel = angekaufte.filter(a =>
@@ -401,11 +406,13 @@ router.get('/meine',
         a.verkauft_am &&
         (!resetDatum || new Date(a.verkauft_am) > resetDatum)
       );
-      const umsatzAnkauf = ankaufBonusArtikel.reduce((s, a) => s + parseFloat(a.verkaufspreis), 0);
-      const bonusAusAnkauf = umsatzAnkauf * bonus_p;
+      const gewinnAnkauf = ankaufBonusArtikel.reduce((s, a) =>
+        s + Math.max(0, parseFloat(a.verkaufspreis || 0) - parseFloat(a.ankaufspreis || 0)), 0
+      );
+      const bonusAusAnkauf = gewinnAnkauf * bonus_p;
 
       const bonusGesamt = bonusAusVerkauf + bonusAusAnkauf;
-      const umsatzGesamt = umsatzVerkauf; // Umsatz = verkaufte Artikel
+      const umsatzGesamt = umsatzVerkauf; // Umsatz = Summe der Verkaufspreise
 
       // Diesen Monat
       const ersterDesMonats = new Date();
@@ -415,7 +422,13 @@ router.get('/meine',
         a.status === 'verkauft' && a.verkauft_am && new Date(a.verkauft_am) >= ersterDesMonats
       );
       const umsatzMonat = verkaufteMonat.reduce((s, a) => s + parseFloat(a.verkaufspreis), 0);
-      const bonusMonat = (umsatzMonat + ankaufMonat.reduce((s, a) => s + parseFloat(a.verkaufspreis), 0)) * bonus_p;
+      const gewinnMonatVerkauf = verkaufteMonat.reduce((s, a) =>
+        s + Math.max(0, parseFloat(a.verkaufspreis) - parseFloat(a.ankaufspreis || 0)), 0
+      );
+      const gewinnMonatAnkauf = ankaufMonat.reduce((s, a) =>
+        s + Math.max(0, parseFloat(a.verkaufspreis || 0) - parseFloat(a.ankaufspreis || 0)), 0
+      );
+      const bonusMonat = (gewinnMonatVerkauf + gewinnMonatAnkauf) * bonus_p;
 
       res.json({
         mitarbeiter: {
