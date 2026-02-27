@@ -170,6 +170,9 @@ router.patch('/firmenkonto-korrektur',
       const wert = parseFloat(korrektur);
       if (isNaN(wert)) return res.status(400).json({ error: 'Ungültiger Wert.' });
 
+      // Tabelle anlegen falls noch nicht vorhanden
+      await Einstellung.sync({ force: false });
+
       const desc = beschreibung || 'Manuelle Korrektur des Soll-Kontostands';
       let eintrag = await Einstellung.findOne({ where: { schluessel: 'firmenkonto_korrektur' } });
       if (eintrag) {
