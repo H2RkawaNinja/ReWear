@@ -81,7 +81,7 @@ const Rematch = () => {
             <h2 className="font-street text-3xl text-white mb-3">Kein aktives Outfit</h2>
             <p className="text-street-500 mb-8">Schau bald wieder vorbei — das nächste Re:Match kommt bestimmt.</p>
             <Link to="/artikel" className="btn-street inline-flex items-center gap-2">
-              Sortiment durchstÃ¶bern <ArrowRight size={16} />
+              Sortiment durchstöbern <ArrowRight size={16} />
             </Link>
           </div>
         </section>
