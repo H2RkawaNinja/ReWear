@@ -264,7 +264,7 @@ const ArtikelVerwalten = () => {
                             <Edit size={18} />
                           </Link>
                         )}
-                        {hasPermission('artikel.loeschen') && (
+                        {hasPermission('artikel.loeschen') && a.status !== 'verkauft' && (
                           <button
                             onClick={() => handleDelete(a.id)}
                             className="p-2 text-street-400 hover:text-red-500 transition-colors"

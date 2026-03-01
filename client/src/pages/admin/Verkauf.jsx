@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingBag, Search, RotateCcw, Tag, X, Banknote, TrendingDown, TrendingUp, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Search, RotateCcw, Tag, X, Banknote, TrendingDown, TrendingUp, CheckCircle, Trash2 } from 'lucide-react';
 import api from '../../services/api';
 
 // ─── Verkauf-Modal ────────────────────────────────────────────────────────────
@@ -187,7 +187,18 @@ const Verkauf = () => {
       setProcessing(null);
     }
   };
-
+  const handleDelete = async (id) => {
+    if (!confirm('Artikel wirklich löschen? Diese Aktion kann nicht rükgängig gemacht werden.')) return;
+    setProcessing(id);
+    try {
+      await api.delete(`/artikel/${id}`);
+      setArtikel(prev => prev.filter(a => a.id !== id));
+    } catch (err) {
+      alert(err.response?.data?.error || 'Fehler beim Löschen');
+    } finally {
+      setProcessing(null);
+    }
+  };
   const getBilder = (bilder) => {
     if (Array.isArray(bilder)) return bilder;
     if (typeof bilder === 'string') {
@@ -330,11 +341,18 @@ const Verkauf = () => {
                       <Banknote size={15} /> Verkaufen
                     </button>
                   ) : (
-                    <button onClick={() => handleRueckgaengig(a.id)} disabled={processing === a.id}
-                      className="w-full py-2 text-sm font-medium rounded bg-street-700 text-street-300 hover:text-white hover:bg-street-600 transition-all flex items-center justify-center gap-2">
-                      <RotateCcw size={14} />
-                      {processing === a.id ? 'Bitte warten...' : 'Rückgängig'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleRueckgaengig(a.id)} disabled={processing === a.id}
+                        className="flex-1 py-2 text-sm font-medium rounded bg-street-700 text-street-300 hover:text-white hover:bg-street-600 transition-all flex items-center justify-center gap-2">
+                        <RotateCcw size={14} />
+                        {processing === a.id ? '...' : 'Rükgängig'}
+                      </button>
+                      <button onClick={() => handleDelete(a.id)} disabled={processing === a.id}
+                        className="py-2 px-3 text-sm font-medium rounded bg-street-700 text-street-400 hover:text-red-500 hover:bg-street-600 transition-all flex items-center justify-center"
+                        title="Artikel löschen">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
