@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       <p className="text-street-300 mb-2 font-medium">{label}</p>
       {payload.map((p,i) => (
         <p key={i} style={{color:p.color}}>
-          {p.name}: {p.name==='Artikel' ? p.value : fmt(p.value)}
+          {p.name}: {(p.name==='Artikel' || p.name==='Ankäufe' || p.name==='Verkäufe') ? p.value : fmt(p.value)}
         </p>
       ))}
     </div>
