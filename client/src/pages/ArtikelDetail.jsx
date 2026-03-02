@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Tag, Ruler, Sparkles, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Tag, AlertCircle } from 'lucide-react';
 import PublicLayout from '../components/layout/PublicLayout';
 import api from '../services/api';
 
@@ -164,28 +164,6 @@ const ArtikelDetail = () => {
               <span className="text-street-500">(nur vor Ort)</span>
             </div>
 
-            {/* Quick Info */}
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <div className="street-card p-4">
-                <div className="flex items-center gap-3">
-                  <Ruler size={20} className="text-primary" />
-                  <div>
-                    <p className="text-street-400 text-xs">Größe</p>
-                    <p className="font-semibold text-white">{artikel.groesse}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="street-card p-4">
-                <div className="flex items-center gap-3">
-                  <Sparkles size={20} className="text-secondary" />
-                  <div>
-                    <p className="text-street-400 text-xs">Zustand</p>
-                    <p className="font-semibold text-white">{artikel.zustand}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* Details Liste */}
             <div className="space-y-4 mb-8">
