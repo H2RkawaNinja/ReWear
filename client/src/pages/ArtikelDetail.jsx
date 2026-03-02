@@ -161,7 +161,6 @@ const ArtikelDetail = () => {
               <span className="text-4xl font-street text-primary">
                 ${parseFloat(artikel.verkaufspreis).toFixed(0)}
               </span>
-              <span className="text-street-500">(nur vor Ort)</span>
             </div>
 
 
